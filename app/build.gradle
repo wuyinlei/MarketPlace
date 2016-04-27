@@ -1,10 +1,12 @@
+//声明插件，这是一个android程序，如果是android库，应该是com.android.library
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    //安卓构建过程需要配置的参数
+    compileSdkVersion 23//编译版本
+    buildToolsVersion "23.0.3"//buildtool版本
 
-    defaultConfig {
+    defaultConfig {//默认配置，会同时应用到debug和release版本上
         applicationId "com.example.wuyin.marketplace"
         minSdkVersion 15
         targetSdkVersion 23
@@ -12,15 +14,120 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        //这里面可以配置debug和release版本的一些参数，比如混淆、签名配置等
         release {
-            minifyEnabled false
+            //release版本
+            minifyEnabled false//是否开启混淆
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//混淆文件位置
         }
     }
 }
 
+//---------------------------------------------------->
+/*
+//应用签名配置
+signingConfigs {
+    //debug版本的签名配置,通常不用配，因为有默认的debug签名
+    debug {
+    }
+    release {
+        storeFile file("key.jks")
+        storePassword "123456"
+        keyAlias "mykey"
+        keyPassword "123456"
+    }
+}*/
+
+
+//---------------------------------------------------->
+/*注：debug的默认签名为:
+signingConfig android.signingCongfigs.debug
+位置为
+
+${home}\.android\debug.keystore
+
+然后在buildTypes结点下的对应版本中添加上面的配置：
+buildTypes{
+    release{
+        signingConfig signingConfigs.release
+    }
+}*/
+
+
+//---------------------------------------------------->
+//当然，release不是固定的名称，你可以随便取，比如这样：
+/*android {
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+        }
+        myConfig {
+            storeFile file("other.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+    buildTypes {
+        foo {
+            debuggable true
+            jniDebuggable true
+            signingConfig signingConfigs.myConfig
+        }
+    }
+}*/
+
+//---------------------------------------------------->
+/*//真实开发中，把密码配置到build.gradle中不是很好的做法，最好的做法是放在gradle.properties
+RELEASE_STOREFILE=xxx.jks
+RELEASE_STORE_PASSWORD=123456
+RELEASE_KEY_ALIAS=mykey
+RELEASE_KEY_PASSWORD=123456
+
+然后直接引用即可：
+storeFile file(RELEASE_STOREFILE)
+storePassword RELEASE_STORE_PASSWORD
+keyAlias RELEASE_KEY_ALIAS
+keyPassword RELEASE_KEY_PASSWORD*/
+
+
+//---------------------------------------------------->定制buildConfig
+/*
+定制buildConfig：
+在build.gradle中配置:
+buildTypes{
+    release{
+        buildConfigField "string","type","\"release\""
+    }
+    debug{
+        buildConfigField "string","type","\"debug\""
+    }
+}*/
+
+
+/*
+
+这样就会在BuildConfig类中生成type字段：
+
+
+//build/generate/source/buildConfig/release/包名/   路径下的BuildConfig.java
+public static final String type = "release"
+//build/generate/source/buildConfig/debug/包名/    路径下的BuildConfig.java
+public static final String type = "debug"
+*/
+
+
+android {
+    lintOptions {
+        abortOnError false
+    }
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //模块依赖
+    compile fileTree(include: ['*.jar'], dir: 'libs')//依赖libs目录下所有jar包
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.google.code.gson:gson:2.2.4'
 }
